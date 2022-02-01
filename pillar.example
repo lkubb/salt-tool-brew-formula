@@ -1,0 +1,45 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+---
+tool:
+  brew:
+    user: username # Specify brew user. Defaults to console user.
+    # It's possible to provide a local mirror for brew repositories.
+    # Mind that you will need to set the matching env vars afterwards:
+    #   HOMEBREW_{BREW,CORE}_GIT_REMOTE
+    # Local mirrors for casks can be set in taps.
+    mirror_brew: https://mygit.example.com/my/brew
+    mirror_core: https://mygit.example.com/my/homebrew-core
+    # Specify configuration env vars to be used during salt run.
+    config:
+      - HOMEBREW_NO_ANALYTICS
+      - HOMEBREW_NO_INSECURE_REDIRECT
+      - HOMEBREW_CASK_OPTS:
+          - --require-sha
+          - --no-quarantine
+    # homebrew-cask* mirrors and custom taps go here:
+    taps:
+        # If you specify the name of an official tap, the remote will be matched.
+        # If you specify the name of an existing non-official tap and
+        #   taps_forced is set to true, the remote will be matched.
+      - homebrew/cask: https://mygit.example.com/my/homebrew-cask
+      - homebrew/cask-versions: https://mygit.example.com/my/homebrew-cask-versions
+      - homebrew/cask-drivers: https://mygit.example.com/my/homebrew-cask-drivers
+      - homebrew/cask-fonts: https://mygit.example.com/my/homebrew-cask-fonts
+        # brew tap short syntax works as well (mapped to github.com/<first>/homebrew-<second>)
+      - blacktop/tap
+      - my/customtap: https://mygit.example.com/my/custom-tap
+    taps_autoupdate:
+      # By default, taps not hosted on Github are not updated automatically
+      # (for performance reasons). Force automatic updates for taps managed
+      # with this formula, either by default or only for specific ones.
+      # This formula forces autoupdate for mirrors of offical taps automatically.
+      default: false
+      my/customtap: true
+    # Force override of existing remotes with specified ones (not necessary for mirrors of official taps).
+    taps_forced: false
+    untaps:
+      - unwanted/tap
+    # You can force linking unprefixed GNU versions of tools to /usr/local/gnubin
+    # You will still need to add it to your path
+    gnu_link: false
