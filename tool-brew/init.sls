@@ -8,3 +8,6 @@ include:
 {%- if brew.get('taps') or brew.get('untaps') %}
   - .taps
 {%- endif %}
+{%- if brew.get('packages') %}
+  - .packages
+{%- endif %}

@@ -95,4 +95,9 @@ tool:
     # You can force linking unprefixed GNU versions of tools to /usr/local/gnubin
     # You will still need to add it to your path
     gnu_link: false
+    # list of packages to install, mostly for bootstrap convenience
+    packages:
+      - git
+      - wget
+      - gpg
 ```
