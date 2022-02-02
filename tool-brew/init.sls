@@ -11,3 +11,6 @@ include:
 {%- if brew.get('packages') %}
   - .packages
 {%- endif %}
+{%- if brew.globalpath is defined %}
+  - .globalpath
+{%- endif %}
