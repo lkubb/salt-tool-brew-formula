@@ -7,7 +7,7 @@ include:
 
 Default packages are installed with brew:
   pkg.installed:
-    - pkgs: {{ brew.packages}}
+    - pkgs: {{ brew.packages | json }}
     - require:
         - Homebrew setup is completed
 {%- endif %}

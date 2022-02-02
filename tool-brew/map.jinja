@@ -2,25 +2,25 @@
 {%- set brew = salt['pillar.get']('tool:brew', {'users': {}}, merge=True) -%}
 {%- set users = {} -%}
 
-{%- set console_user = salt['cmd.run_stdout']('id -n -u $(stat -f "%u" /dev/console)', python_shell=True) %}
-{%- set m1 = 'Apple' in grains['cpu_model'] %}
+{%- set console_user = salt['cmd.run_stdout']('id -n -u $(stat -f "%u" /dev/console)', python_shell=True) -%}
+{%- set m1 = 'Apple' in grains['cpu_model'] -%}
 
-{%- if brew.get('prefix') %}
-  {%- set prefix, target = (brew.prefix, brew.get('repodir', '')) %}
-{%- else %}
-  {%- if m1 %}
-    {%- set prefix, target = ('/opt/homebrew', '') %}
-  {%- else %}
-    {%- set prefix, target = ('/usr/local', '/Homebrew') %}
-  {%- endif %}
-{%- endif %}
+{%- if brew.get('prefix') -%}
+  {%- set prefix, target = (brew.prefix, brew.get('repodir', '')) -%}
+{%- else -%}
+  {%- if m1 -%}
+    {%- set prefix, target = ('/opt/homebrew', '') -%}
+  {%- else -%}
+    {%- set prefix, target = ('/usr/local', '/Homebrew') -%}
+  {%- endif -%}
+{%- endif -%}
 
 {%- do brew.update({
   '_user': brew.get('user', console_user),
   '_prefix': prefix,
   '_target': prefix ~ target,
   '_m1': m1,
-}) %}
+}) -%}
 
 {#- rejectattr filter does not fit with mapping. need to filter out users before merging default values -#}
 {%- for tool_user, tool_user_conf in salt['pillar.get']('tool:users', {}).items() -%}

@@ -1,7 +1,7 @@
 {%- from 'tool-brew/map.jinja' import brew -%}
 
 {#- not sure how to handle /../ tbh -#}
-{%- set gnupath = '/'.join(brew._prefix.split('/')[:-1]) ~ '/gnubin' %}
+{%- set gnupath = '/'.join(brew._prefix.split('/')[:-1]) ~ '/gnubin' -%}
 
 GNU tool folder exists:
   file.directory:

@@ -7,12 +7,12 @@
   'homebrew/cask-fonts',
   ] -%}
 
-{%- set parsed_taps = [] %}
+{%- set parsed_taps = [] -%}
 
 {%- for tap in brew.get('taps', []) -%}
   {%- set tap_name = tap if tap is string else tap.keys() | first -%}
   {%- set tap_remote = tap[tap_name] if tap is mapping else '' -%}
-  {%- set autoupdate = False %}
+  {%- set autoupdate = False -%}
   {%- if tap_remote -%}
     {%- set autoupdate =
           brew.get('taps_autoupdate', {}).get('default', False) | to_bool or
@@ -25,7 +25,7 @@
     'remote': tap_remote,
     'autoupdate': autoupdate,
   }) -%}
-{%- endfor %}
+{%- endfor -%}
 
 include:
   - .package
