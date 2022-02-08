@@ -20,3 +20,13 @@ Homebrew env vars are set during this salt run:
 {%- for config in custom_vars %}
         {{ config[0] | upper }}: '{{ config[1] }}'
 {%- endfor %}
+
+{%- set path = salt['environ.get']('PATH') %}
+{%- if brew._prefix ~ '/bin' not in path %}
+  {%- set path = brew._prefix ~ '/bin:' ~ path %}
+{%- endif %}
+
+Homebrew is listed in $PATH during this salt run:
+  environ.setenv:
+    - name: PATH
+    - value: '{{ path }}'
