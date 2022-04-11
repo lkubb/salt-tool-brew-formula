@@ -1,75 +1,82 @@
-{#- Installs Homebrew.
+{#-
+    Installs Homebrew.
 
     This cannot easily use the official installer because, for noninteractive
     installation, it would need passwordless sudo on the admin user.
 
-    On my (already set up) system, the installer issued the following commands::
+    On my (already set up) M1 system, the official installer issued the following commands:
 
-        /usr/bin/sudo /usr/sbin/chown -R jeanluc:admin /opt/homebrew
-        /usr/bin/touch /Users/jeanluc/Library/Caches/Homebrew/.cleaned
-        git init -q
-        git config remote.origin.url https://git.jean.casa/Github/brew
-        git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
-        git config core.autocrlf false
-        git fetch --force origin
-        git fetch --force --tags origin
-        git reset --hard origin/master
-        /opt/homebrew/bin/brew update --force --quiet
-        git config --replace-all homebrew.analyticsmessage true
-        git config --replace-all homebrew.caskanalyticsmessage true
+    .. code-block:: bash
+
+      /usr/bin/sudo /usr/sbin/chown -R `username`:admin /opt/homebrew
+      /usr/bin/touch /Users/`username`/Library/Caches/Homebrew/.cleaned
+      git init -q
+      git config remote.origin.url `brew_mirror`
+      git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+      git config core.autocrlf false
+      git fetch --force origin
+      git fetch --force --tags origin
+      git reset --hard origin/master
+      /opt/homebrew/bin/brew update --force --quiet
+      git config --replace-all homebrew.analyticsmessage true
+      git config --replace-all homebrew.caskanalyticsmessage true
 -#}
 
-{%- from 'tool-brew/map.jinja' import brew -%}
+{#- Get the `tplroot` from `tpldir` #}
+{%- set tplroot = tpldir.split('/')[0] %}
+{%- from tplroot ~ "/map.jinja" import mapdata as brew with context %}
+{%- set target = brew.lookup.prefix | path_join(brew.lookup.repodir) %}
 
 include:
-  - .command_line_tools
-  - .env
+  - {{ tplroot }}.command_line_tools
+  - {{ tplroot }}.env_vars
+
 
 Homebrew parent directory has proper ownership:
   file.directory:
-    - name: {{ brew._prefix }}
+    - name: {{ brew.lookup.prefix }}
     - mode: '0755'
-    - user: {{ brew._user if brew._m1 else 'root'}}
+    - user: {{ brew.lookup.user if brew.lookup.m1 else 'root' }}
 
 Homebrew install path exists with correct permissions and ownership:
   file.directory:
-    - name: {{ brew._target }}
-    - user: {{ brew._user }}
+    - name: {{ target }}
+    - user: {{ brew.lookup.user }}
     - group: admin
     - mode: '0755'
 
 Homebrew has been cloned once:
   cmd.run:
     - name: |
-        cd {{ brew._target }}
+        cd {{ target }}
         git init -q
-        git config remote.origin.url {{ brew.get('mirror_brew', 'https://github.com/Homebrew/brew.git') }}
+        git config remote.origin.url {{ brew.lookup.brew_mirror }}
         git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
         git config core.autocrlf false
         git fetch --force origin
         git fetch --force --tags origin
         git reset --hard origin/master
   # git.cloned:
-  #   - name: {{ brew.get('mirror_brew', 'https://github.com/Homebrew/brew.git') }}
-  #   - target: {{ brew._target }}
-    - runas: {{ brew._user }}
+  #   - name: {{ brew.lookup.brew_mirror }}
+  #   - target: {{ target }}
+    - runas: {{ brew.lookup.user }}
     - unless:
-        - cd {{ brew._target }} && git status
+        - cd {{ target }} && git status
     - require:
         - Command Line Tools are installed
         - Homebrew install path exists with correct permissions and ownership
 
 Homebrew bin path exists with correct permissions and ownership:
   file.directory:
-    - name: {{ brew._prefix }}/bin
-    - user: {{ brew._user }}
+    - name: {{ brew.lookup.prefix | path_join('bin') }}
+    - user: {{ brew.lookup.user }}
     - group: admin
     - mode: '0755'
 
 Homebrew install path subdirs exist with correct permissions and ownership:
   file.directory:
-    - name: {{ brew._target }}
-    - user: {{ brew._user }}
+    - name: {{ target }}
+    - user: {{ brew.lookup.user }}
     - group: admin
     - recurse:
         - user
@@ -77,16 +84,16 @@ Homebrew install path subdirs exist with correct permissions and ownership:
 
 Homebrew executable is linked to bin dir:
   file.symlink:
-    - name: {{ brew._prefix }}/bin/brew
-    - target: {{ brew._target }}/bin/brew
+    - name: {{ brew.lookup.prefix | path_join('bin', 'brew') }}
+    - target: {{ target | path_join('bin', 'brew') }}
     - unless:
         # on M1 systems, prefix = target
-        - test -x {{ brew._prefix }}/bin/brew
+        - test -x {{ brew.lookup.prefix | path_join('bin', 'brew') }}
 
 Homebrew cache is initialized:
   cmd.run:
-    - name: {{ brew._prefix }}/bin/brew --cache
-    - runas: {{ brew._user }}
+    - name: {{ brew.lookup.prefix | path_join('bin', 'brew') }} --cache
+    - runas: {{ brew.lookup.user }}
     # only do that on the first run
     - onchanges:
         - Homebrew has been cloned once
@@ -95,17 +102,17 @@ Homebrew cache is initialized:
 
 Homebrew is updated:
   cmd.run:
-    - name: {{ brew._prefix }}/bin/brew update --force
+    - name: {{ brew.lookup.prefix | path_join('bin', 'brew') }} update --force
     - env:
         - HOMEBREW_NO_ANALYTICS_THIS_RUN: '1'
         - HOMEBREW_NO_ANALYTICS_MESSAGE_OUTPUT: '1'
-{%- if brew.get('mirror_brew') %}
-        - HOMEBREW_BREW_GIT_REMOTE: '{{ brew.mirror_brew }}'
+{%- if brew.lookup.brew_mirror != 'https://github.com/Homebrew/brew.git' %}
+        - HOMEBREW_BREW_GIT_REMOTE: '{{ brew.lookup.brew_mirror }}'
 {%- endif %}
-{%- if brew.get('mirror_core') %}
-        - HOMEBREW_CORE_GIT_REMOTE: '{{ brew.mirror_core }}'
+{%- if brew.lookup.core_mirror != 'https://github.com/Homebrew/homebrew-core.git' %}
+        - HOMEBREW_CORE_GIT_REMOTE: '{{ brew.lookup.core_mirror }}'
 {%- endif %}
-    - runas: {{ brew._user }}
+    - runas: {{ brew.lookup.user }}
     # only do that on the first run
     - onchanges:
         - Homebrew has been cloned once
@@ -124,3 +131,5 @@ Homebrew setup is completed:
         - Homebrew install path subdirs exist with correct permissions and ownership
         - Homebrew executable is linked to bin dir
         - Homebrew is updated
+
+# vim: ft=sls

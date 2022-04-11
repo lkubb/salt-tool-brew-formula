@@ -1,4 +1,10 @@
-{%- from 'tool-brew/map.jinja' import brew -%}
+# -*- coding: utf-8 -*-
+# vim: ft=sls
+
+{#- Get the `tplroot` from `tpldir` #}
+{%- set tplroot = tpldir.split('/')[0] %}
+{%- from tplroot ~ "/map.jinja" import mapdata as brew with context %}
+
 
 # inspired by https://github.com/elliotweiser/ansible-osx-command-line-tools
 Command Line Tools are installed:
@@ -11,7 +17,7 @@ Command Line Tools are installed:
                sort | tail -n1);
         softwareupdate -i "$PROD" --verbose;
         rm /tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress;
-    - runas: {{ brew._user }}
+    - runas: {{ brew.lookup.user }}
     - unless:
         - test -d /Library/Developer/CommandLineTools
         - xcode-select -p &> /dev/null

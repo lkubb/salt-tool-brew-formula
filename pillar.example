@@ -1,51 +1,119 @@
 # -*- coding: utf-8 -*-
 # vim: ft=yaml
+# yamllint disable rule:comments-indentation
 ---
-tool:
-  brew:
-    user: username # Specify brew user. Defaults to console user.
-    # It's possible to provide a local mirror for brew repositories.
-    # Mind that you will need to set the matching env vars afterwards:
-    #   HOMEBREW_{BREW,CORE}_GIT_REMOTE
-    # Local mirrors for casks can be set in taps.
-    mirror_brew: https://mygit.example.com/my/brew
-    mirror_core: https://mygit.example.com/my/homebrew-core
+######################################################################
+# Mind that this is to be read as an overview of available
+# settings which can be set in many different ways, not only
+# by providing pillar values.
+# The different sources will be merged. For further information,
+# please see the docs, `libmapstack.jinja` as well as the configured
+# default sources in `parameters/map_jinja.yaml`.
+#
+# This documentation will need to be updated once there is
+# some learned experience. @TODO
+######################################################################
+
+# Apart from the various source files, there are two independent source trees
+# for user-specific configuration.
+# Generally tool_brew > tool_global.
+# `tool_global` focuses on specific users, of which most values
+# will be respected by all formulae in the `tool` suite:
+tool_global:
+  users:
+
+      # The following is global configuration for the user named `user`.
+    user:
+
+        # Persist environment variables used by this formula for this
+        # user to this file (will be appended to a file relative to $HOME)
+      persistenv: '.config/zsh/zshenv'
+
+        # Add runcom hooks specific to this formula to this file
+        # for this user (will be appended to a file relative to $HOME)
+      rchook: '.config/zsh/zshrc'
+
+tool_brew:
     # Specify configuration env vars to be used during salt run.
-    config:
-      - HOMEBREW_NO_ANALYTICS
-      - HOMEBREW_NO_INSECURE_REDIRECT
-      - HOMEBREW_CASK_OPTS:
-          - --require-sha
-          - --no-quarantine
-    # homebrew-cask* mirrors and custom taps go here:
-    taps:
-        # If you specify the name of an official tap, the remote will be matched.
-        # If you specify the name of an existing non-official tap and
-        #   taps_forced is set to true, the remote will be matched.
-      - homebrew/cask: https://mygit.example.com/my/homebrew-cask
-      - homebrew/cask-versions: https://mygit.example.com/my/homebrew-cask-versions
-      - homebrew/cask-drivers: https://mygit.example.com/my/homebrew-cask-drivers
-      - homebrew/cask-fonts: https://mygit.example.com/my/homebrew-cask-fonts
-        # brew tap short syntax works as well (mapped to github.com/<first>/homebrew-<second>)
-      - blacktop/tap
-      - my/customtap: https://mygit.example.com/my/custom-tap
-    taps_autoupdate:
+  config:
+    - HOMEBREW_NO_ANALYTICS
+    - HOMEBREW_NO_INSECURE_REDIRECT
+    - HOMEBREW_CASK_OPTS:
+        - --require-sha
+        - --no-quarantine
+    # Ensure brew bin dir is globally in/absent from `$PATH`.
+  globalpath: true
+    # Helper to automatically install packages.
+  packages:
+    - git
+    - gpg
+    - wget
+  taps:
+      # List of taps that should not be available.
+    absent:
+      - unwanted/tap
       # By default, taps not hosted on Github are not updated automatically
       # (for performance reasons). Force automatic updates for taps managed
       # with this formula, either by default or only for specific ones.
       # This formula forces autoupdate for mirrors of offical taps automatically.
+    autoupdate:
       default: false
       my/customtap: true
-    # Force override of existing remotes with specified ones (not necessary for mirrors of official taps).
-    taps_forced: false
-    untaps:
-      - unwanted/tap
-    # You can force linking unprefixed GNU versions of tools to /usr/local/gnubin
-    # You will still need to add it to your path
-    gnu_link: false
-    # ensure brew bin dir is globally inside $path
-    globalpath: false
-    packages:
-      - git
-      - wget
-      - gpg
+      # Force override of existing remotes with specified ones
+      # (not necessary for mirrors of official taps).
+    forced: false
+      # homebrew-cask* mirrors and custom taps go here:
+    wanted:
+          # If you specify the name of an official tap, the remote will be matched.
+          # If you specify the name of an existing non-official tap and
+          #   taps_forced is set to true, the remote will be matched.
+      - homebrew/cask: https://mygit.example.com/my/homebrew-cask
+      - homebrew/cask-versions: https://mygit.example.com/my/homebrew-cask-versions
+      - homebrew/cask-drivers: https://mygit.example.com/my/homebrew-cask-drivers
+      - homebrew/cask-fonts: https://mygit.example.com/my/homebrew-cask-fonts
+          # brew tap short syntax works as well
+          # (mapped to github.com/<first>/homebrew-<second>)
+      - blacktop/tap
+      - my/customtap: https://mygit.example.com/my/custom-tap
+
+    # User configuration can also be specified here in
+    # `tool_brew:users`. It will override
+    # configuration sourced from `tool_global:users`.
+  users:
+    user:
+      persistenv: '.bash_profile'
+
+######################################################################
+# The following settings define default values for this formula,
+# depending on different grains. You should not have to modify them
+# in most cases. For a full overview, see the different files
+# in `parameters`.
+######################################################################
+  lookup:
+      # It's possible to provide a local mirror for brew repositories.
+      # Mind that you will need to set the matching env vars afterwards:
+      #   HOMEBREW_{BREW,CORE}_GIT_REMOTE @TODO persistenv
+      # Local mirrors for casks can be set in taps.
+    brew_mirror: https://github.com/Homebrew/brew.git
+    core_mirror: https://github.com/Homebrew/homebrew-core.git
+    user: username  # Needs administrator. Defaults to console user.
+
+######################################################################
+# This is where `tool` suite settings end and Salt behavior settings
+# inherited from `salt-formulas/template-formula` start. They will
+# influence how exactly the TOFS pattern is applied. Mind that
+# parts of this are disabled for `configsync.sls`.
+######################################################################
+  tofs:
+    # The files_switch key serves as a selector for alternative
+    # directories under the formula files directory. See TOFS pattern
+    # doc for more info.
+    # Note: Any value not evaluated by `config.get` will be used literally.
+    # This can be used to set custom paths, as many levels deep as required.
+    files_switch:
+      - any/path/can/be/used/here
+      - id
+      - roles
+      - osfinger
+      - os
+      - os_family

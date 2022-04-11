@@ -1,0 +1,15 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+#
+# Set default values.
+---
+values:
+  lookup:
+    brew_mirror: https://github.com/Homebrew/brew.git
+    core_mirror: https://github.com/Homebrew/homebrew-core.git
+    official_taps:
+      - homebrew/cask
+      - homebrew/cask-versions
+      - homebrew/cask-drivers
+      - homebrew/cask-fonts
+...
