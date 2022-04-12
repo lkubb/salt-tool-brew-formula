@@ -1,6 +1,6 @@
 {
   "template": "https://github.com/lkubb/salt-tool-template-formula",
-  "commit": "64ee3bea326c347112c4488a7a13ac05852e728f",
+  "commit": "b6857da39f76771bbfbeaf6fab8389d62179eef9",
   "checkout": null,
   "context": {
     "cookiecutter": {
@@ -70,12 +70,22 @@
           },
           "forced": false,
           "wanted": [
-            {"homebrew/cask": "https://mygit.example.com/my/homebrew-cask"},
-            {"homebrew/cask-versions": "https://mygit.example.com/my/homebrew-cask-versions"},
-            {"homebrew/cask-drivers": "https://mygit.example.com/my/homebrew-cask-drivers"},
-            {"homebrew/cask-fonts": "https://mygit.example.com/my/homebrew-cask-fonts"},
+            {
+              "homebrew/cask": "https://mygit.example.com/my/homebrew-cask"
+            },
+            {
+              "homebrew/cask-versions": "https://mygit.example.com/my/homebrew-cask-versions"
+            },
+            {
+              "homebrew/cask-drivers": "https://mygit.example.com/my/homebrew-cask-drivers"
+            },
+            {
+              "homebrew/cask-fonts": "https://mygit.example.com/my/homebrew-cask-fonts"
+            },
             "blacktop/tap",
-            {"my/customtap": "https://mygit.example.com/my/custom-tap"}
+            {
+              "my/customtap": "https://mygit.example.com/my/custom-tap"
+            }
           ]
         },
         "globalpath": true,
