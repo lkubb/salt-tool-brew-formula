@@ -6,6 +6,7 @@
 {%- from tplroot ~ "/map.jinja" import mapdata as brew with context %}
 
 
+{%- for user in brew.users | selectattr('persistenv', 'defined') | selectattr('persistenv') %}
 {%-   for conf, val in brew._vars %}
 
 brew env var '{{ conf | upper }}' is not persisted for '{{ user.name }}':
