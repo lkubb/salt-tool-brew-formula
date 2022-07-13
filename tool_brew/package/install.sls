@@ -48,7 +48,6 @@ Homebrew install path exists with correct permissions and ownership:
 Homebrew has been cloned once:
   cmd.run:
     - name: |
-        cd {{ target }}
         git init -q
         git config remote.origin.url {{ brew.lookup.brew_mirror }}
         git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
@@ -59,9 +58,10 @@ Homebrew has been cloned once:
   # git.cloned:
   #   - name: {{ brew.lookup.brew_mirror }}
   #   - target: {{ target }}
+    - cwd: {{ target }}
     - runas: {{ brew.lookup.user }}
     - unless:
-        - cd {{ target }} && git status
+        - cd '{{ target }}' && git status
     - require:
         - Command Line Tools are installed
         - Homebrew install path exists with correct permissions and ownership

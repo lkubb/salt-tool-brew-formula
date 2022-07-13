@@ -63,9 +63,8 @@ Homebrew tap '{{ tap.name }}' is force-set to custom remote:
 
 Homebrew tap '{{ tap.name }}' autoupdate status is managed:
   cmd.run:
-    - name: |
-        cd '{{ tap_dir }}' \
-        && git config --replace-all --local --bool homebrew.forceautoupdate {{ tap.autoupdate }}
+    - name: git config --replace-all --local --bool homebrew.forceautoupdate {{ tap.autoupdate }}
+    - cwd: {{ tap_dir }}
     - runas: {{ brew.lookup.user }}
     - unless:
         - |
