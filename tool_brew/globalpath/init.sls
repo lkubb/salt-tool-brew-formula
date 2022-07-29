@@ -4,7 +4,6 @@
     This is achieved by appending it to/removing it from ``/etc/paths``.
 -#}
 
-{#- Get the `tplroot` from `tpldir` #}
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as brew with context %}
 

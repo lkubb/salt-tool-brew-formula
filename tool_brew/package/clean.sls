@@ -6,7 +6,6 @@
     (eg in `/usr/local/bin`).
 -#}
 
-{#- Get the `tplroot` from `tpldir` #}
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as brew with context %}
 {%- set target = brew.lookup.prefix | path_join(brew.lookup.repodir) %}

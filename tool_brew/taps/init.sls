@@ -5,7 +5,6 @@
     * replace default taps (e.g. ``homebrew/cask``) with custom mirrors.
 -#}
 
-{#- Get the `tplroot` from `tpldir` #}
 {%- set tplroot = tpldir.split('/')[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as brew with context %}
 {%- set brew_bin = brew.lookup.prefix | path_join('bin', 'brew') %}
