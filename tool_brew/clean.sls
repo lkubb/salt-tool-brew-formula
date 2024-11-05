@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
 # vim: ft=sls
+
+{#-
+    *Meta-state*.
+
+    Undoes everything performed in the ``tool_brew`` meta-state
+    in reverse order.
+#}
 
 include:
   - .gnu.clean

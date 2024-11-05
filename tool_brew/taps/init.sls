@@ -1,20 +1,22 @@
+# vim: ft=sls
+
 {#-
     Manages Homebrew taps. This allows to
 
     * add custom taps, either on Github or elsewhere and
-    * replace default taps (e.g. ``homebrew/cask``) with custom mirrors.
--#}
+    * replace default taps (e.g. `homebrew/cask`) with custom mirrors.
+#}
 
-{%- set tplroot = tpldir.split('/')[0] %}
+{%- set tplroot = tpldir.split("/")[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as brew with context %}
-{%- set brew_bin = brew.lookup.prefix | path_join('bin', 'brew') %}
+{%- set brew_bin = brew.lookup.prefix | path_join("bin", "brew") %}
 
 include:
   - {{ tplroot }}.package
   - {{ tplroot }}.env_vars
 
 {%- for tap in brew._taps %}
-  {%- set tap_dir = brew.lookup.prefix | path_join('Library', 'Taps', tap.name.split('/')[0], 'homebrew-' ~ tap.name.split('/')[1]) %}
+  {%- set tap_dir = brew.lookup.prefix | path_join("Library", "Taps", tap.name.split("/")[0], "homebrew-" ~ tap.name.split("/")[1]) %}
 
 Homebrew tap '{{ tap.name }}' is available:
   cmd.run:
@@ -49,7 +51,7 @@ Homebrew tap '{{ tap.name }}' is force-set to custom remote:
     - onlyif:
         - |
             (sudo -u '{{ brew.lookup.user }}' {{ brew_bin }} tap | \
-               grep '{{ tap.name }}' && {{ brew.get('taps_forced', false) | to_bool }}) || \
+               grep '{{ tap.name }}' && {{ brew.get("taps_forced", false) | to_bool }}) || \
                {{ tap.name in brew.lookup.official_taps }}
     # unless it's already set to the custom target
     - unless:
@@ -75,7 +77,7 @@ Homebrew tap '{{ tap.name }}' autoupdate status is managed:
   {%- endif %}
 {%- endfor %}
 
-{%- for tap in brew | traverse('taps:absent', []) %}
+{%- for tap in brew | traverse("taps:absent", []) %}
 
 Homebrew tap '{{ tap }}' is unavailable:
   cmd.run:
@@ -88,5 +90,3 @@ Homebrew tap '{{ tap }}' is unavailable:
         - Homebrew setup is completed
         - Homebrew env vars are set during this salt run
 {%- endfor %}
-
-# vim: ft=sls

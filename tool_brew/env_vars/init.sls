@@ -1,3 +1,5 @@
+# vim: ft=sls
+
 {#-
     Sets environment variables for the running Salt minion process
     and persists them to user's ``persistenv`` files, if requested.
@@ -12,10 +14,10 @@
     They are parsed in ``tool_brew/post-map.jinja``.
 
     Modifying the paths is left to the user.
--#}
+#}
 
 
-{%- set tplroot = tpldir.split('/')[0] %}
+{%- set tplroot = tpldir.split("/")[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as brew with context %}
 
 
@@ -26,10 +28,10 @@ Homebrew env vars are set during this salt run:
         {{ conf | upper }}: '{{ val }}'
 {%- endfor %}
 
-{%- set path = salt['environ.get']('PATH') %}
-{%- if brew.lookup.prefix | path_join('bin') not in path
-    and not brew.get('globalpath') %}
-{%-   set path = brew.lookup.prefix ~ '/bin:' ~ path %}
+{%- set path = salt["environ.get"]("PATH") %}
+{%- if brew.lookup.prefix | path_join("bin") not in path
+    and not brew.get("globalpath") %}
+{%-   set path = brew.lookup.prefix ~ "/bin:" ~ path %}
 
 Homebrew is listed in $PATH during this salt run:
   environ.setenv:
@@ -37,7 +39,7 @@ Homebrew is listed in $PATH during this salt run:
     - value: '{{ path }}'
 {%- endif %}
 
-{%- for user in brew.users | selectattr('persistenv', 'defined') | selectattr('persistenv') %}
+{%- for user in brew.users | selectattr("persistenv", "defined") | selectattr("persistenv") %}
 
 persistenv file for brew for user '{{ user.name }}' exists:
   file.managed:
@@ -59,5 +61,3 @@ brew env var '{{ conf | upper }}' is persisted for '{{ user.name }}':
       - persistenv file for brew for user '{{ user.name }}' exists
 {%-   endfor %}
 {%- endfor %}
-
-# vim: ft=sls
