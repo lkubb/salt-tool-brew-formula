@@ -1,5 +1,5 @@
-Welcome to salt-tool-brew-formula's documentation!
-==================================================
+Welcome to tool-brew-formula's documentation!
+=============================================
 
 .. toctree::
    :maxdepth: 2

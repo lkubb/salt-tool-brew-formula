@@ -11,4 +11,14 @@ values:
       - homebrew/cask-versions
       - homebrew/cask-drivers
       - homebrew/cask-fonts
+
+  tofs:
+    files_switch:
+      - G@id|U@users
+      - id
+      - C@roles|U@users
+      - roles
+      - G@os_family|U@users
+      - os_family
+      - U@users
 ...

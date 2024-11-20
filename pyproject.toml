@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "salt_tool_brew"
+name = "tool_brew_formula"
 version = "1.0.0"
 description = "Saltstack states to manage Homebrew"
 authors = ["lkubb"]
