@@ -27,8 +27,12 @@ All homebrew formulae are removed (casks are exempt):
 {%-   for conf, val in brew._vars %}
         - {{ conf | upper }}: '{{ val }}'
 {%-   endfor %}
+    - require_in:
+      - Homebrew is removed
 {%- endif %}
 
-Homebrew install path is absent:
+Homebrew is removed:
   file.absent:
-    - name: {{ target }}
+    - names:
+      - {{ target }}
+      - {{ salt["user.info"](brew.lookup.user).home | path_join("Library", "Caches", "Homebrew") }}

@@ -17,12 +17,14 @@ has_xdg: false
 lookup:
   brew_mirror: https://github.com/Homebrew/brew.git
   core_mirror: https://github.com/Homebrew/homebrew-core.git
-  m1: '{{ ''Apple'' in grains[''cpu_model''] }}'
+  global_env: /etc/homebrew/brew.env
   official_taps:
     - homebrew/cask
-    - homebrew/cask-versions
-    - homebrew/cask-drivers
-    - homebrew/cask-fonts
+  pkg_src:
+    latest: https://github.com/Homebrew/brew/releases/latest/
+    source: https://github.com/Homebrew/brew/releases/download/{version}/Homebrew-{version}.pkg
+    source_hash: null
+  pkg_user_path: /var/tmp/.homebrew_pkg_user.plist
   user: '{{ salt[''cmd.run_stdout''](''id -n -u $(stat -f "%u" /dev/console)'', python_shell=true)
     }}'
 mac_cask: false
@@ -39,6 +41,7 @@ settings:
         - --require-sha
         - --no-quarantine
   globalpath: true
+  init_version: null
   packages:
     - git
     - gpg
@@ -52,9 +55,6 @@ settings:
     forced: false
     wanted:
       - homebrew/cask: https://mygit.example.com/my/homebrew-cask
-      - homebrew/cask-versions: https://mygit.example.com/my/homebrew-cask-versions
-      - homebrew/cask-drivers: https://mygit.example.com/my/homebrew-cask-drivers
-      - homebrew/cask-fonts: https://mygit.example.com/my/homebrew-cask-fonts
       - blacktop/tap
       - my/customtap: https://mygit.example.com/my/custom-tap
 user_settings: {}

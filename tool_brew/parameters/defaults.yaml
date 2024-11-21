@@ -3,15 +3,18 @@
 # Set default values.
 ---
 values:
+  init_version: null
   lookup:
     brew_mirror: https://github.com/Homebrew/brew.git
     core_mirror: https://github.com/Homebrew/homebrew-core.git
+    global_env: /etc/homebrew/brew.env
     official_taps:
       - homebrew/cask
-      - homebrew/cask-versions
-      - homebrew/cask-drivers
-      - homebrew/cask-fonts
-
+    pkg_user_path: /var/tmp/.homebrew_pkg_user.plist
+    pkg_src:
+      latest: https://github.com/Homebrew/brew/releases/latest/
+      source: https://github.com/Homebrew/brew/releases/download/{version}/Homebrew-{version}.pkg  # yamllint disable-line rule:line-length
+      source_hash: null
   tofs:
     files_switch:
       - G@id|U@users

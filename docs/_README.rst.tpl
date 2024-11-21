@@ -44,7 +44,7 @@ Formula-specific
 .. code-block:: yaml
 
   tool_brew:
-      # Specify configuration env vars to be used during salt run.
+      # Specify global configuration env vars.
     config:
       - HOMEBREW_NO_ANALYTICS
       - HOMEBREW_NO_INSECURE_REDIRECT
@@ -53,6 +53,8 @@ Formula-specific
           - --no-quarantine
       # Ensure brew bin dir is globally in/absent from `$PATH`.
     globalpath: true
+      # When initially installing brew, use this version. Defaults to latest.
+    init_version: null
       # Helper to automatically install packages.
     packages:
       - git
@@ -78,9 +80,6 @@ Formula-specific
             # If you specify the name of an existing non-official tap and
             #   taps_forced is set to true, the remote will be matched.
         - homebrew/cask: https://mygit.example.com/my/homebrew-cask
-        - homebrew/cask-versions: https://mygit.example.com/my/homebrew-cask-versions
-        - homebrew/cask-drivers: https://mygit.example.com/my/homebrew-cask-drivers
-        - homebrew/cask-fonts: https://mygit.example.com/my/homebrew-cask-fonts
             # brew tap short syntax works as well
             # (mapped to github.com/<first>/homebrew-<second>)
         - blacktop/tap

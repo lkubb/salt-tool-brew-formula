@@ -31,7 +31,7 @@ Homebrew tap '{{ tap.name }}' is available:
             || {{ tap.name in brew.lookup.official_taps }}
     - require:
         - Homebrew setup is completed
-        - Homebrew env vars are set during this salt run
+        - sls: {{ tplroot }}.env_vars
 
 {%-   if tap.remote %}
 
@@ -60,7 +60,7 @@ Homebrew tap '{{ tap.name }}' is force-set to custom remote:
             && git remote get-url origin | grep '{{ tap.remote }}'
     - require:
         - Homebrew setup is completed
-        - Homebrew env vars are set during this salt run
+        - sls: {{ tplroot }}.env_vars
 
 Homebrew tap '{{ tap.name }}' autoupdate status is managed:
   cmd.run:
@@ -88,5 +88,5 @@ Homebrew tap '{{ tap }}' is unavailable:
       - {{ brew.lookup.user }}
     - require:
         - Homebrew setup is completed
-        - Homebrew env vars are set during this salt run
+        - sls: {{ tplroot }}.env_vars
 {%- endfor %}

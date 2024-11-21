@@ -15,7 +15,7 @@ include:
 
 {%- set active = brew.get("globalpath", false) %}
 
-# this is useful on M1 macs for initial bootstrap at least
+# This is useful on Apple Silicon macs for initial bootstrap at least
 Homebrew bin dir in global path is managed:
   file.{{ "prepend" if active else "replace" }}:
     - name: /etc/paths
@@ -24,6 +24,6 @@ Homebrew bin dir in global path is managed:
     - require:
         - Homebrew setup is completed
 {%- else %}
-    - pattern: {{ brew.lookup.prefix | path_join("bin") | regex_escape }}\n
+    - pattern: '{{ brew.lookup.prefix | path_join("bin") | regex_escape }}\n'
     - repl: ''
 {%- endif %}

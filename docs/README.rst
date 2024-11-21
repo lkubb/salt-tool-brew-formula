@@ -44,7 +44,7 @@ Formula-specific
 .. code-block:: yaml
 
   tool_brew:
-      # Specify configuration env vars to be used during salt run.
+      # Specify global configuration env vars.
     config:
       - HOMEBREW_NO_ANALYTICS
       - HOMEBREW_NO_INSECURE_REDIRECT
@@ -53,6 +53,8 @@ Formula-specific
           - --no-quarantine
       # Ensure brew bin dir is globally in/absent from `$PATH`.
     globalpath: true
+      # When initially installing brew, use this version. Defaults to latest.
+    init_version: null
       # Helper to automatically install packages.
     packages:
       - git
@@ -78,9 +80,6 @@ Formula-specific
             # If you specify the name of an existing non-official tap and
             #   taps_forced is set to true, the remote will be matched.
         - homebrew/cask: https://mygit.example.com/my/homebrew-cask
-        - homebrew/cask-versions: https://mygit.example.com/my/homebrew-cask-versions
-        - homebrew/cask-drivers: https://mygit.example.com/my/homebrew-cask-drivers
-        - homebrew/cask-fonts: https://mygit.example.com/my/homebrew-cask-fonts
             # brew tap short syntax works as well
             # (mapped to github.com/<first>/homebrew-<second>)
         - blacktop/tap
@@ -105,27 +104,7 @@ Performs all operations described in this formula according to the specified con
 
 ``tool_brew.package``
 ~~~~~~~~~~~~~~~~~~~~~
-Installs Homebrew.
-
-This cannot easily use the official installer because, for noninteractive
-installation, it would need passwordless sudo on the admin user.
-
-On my (already set up) M1 system, the official installer issued the following commands:
-
-.. code-block:: bash
-
-  /usr/bin/sudo /usr/sbin/chown -R `username`:admin /opt/homebrew
-  /usr/bin/touch /Users/`username`/Library/Caches/Homebrew/.cleaned
-  git init -q
-  git config remote.origin.url `brew_mirror`
-  git config remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
-  git config core.autocrlf false
-  git fetch --force origin
-  git fetch --force --tags origin
-  git reset --hard origin/master
-  /opt/homebrew/bin/brew update --force --quiet
-  git config --replace-all homebrew.analyticsmessage true
-  git config --replace-all homebrew.caskanalyticsmessage true
+Installs Homebrew using the official package.
 
 
 ``tool_brew.globalpath``
@@ -137,19 +116,17 @@ This is achieved by appending it to/removing it from ``/etc/paths``.
 
 ``tool_brew.env_vars``
 ~~~~~~~~~~~~~~~~~~~~~~
-Sets environment variables for the running Salt minion process
-and persists them to user's ``persistenv`` files, if requested.
+Sets global homebrew environment variables.
 
-The latter will contain
+These contain
 
 * most of the default settings issued by ``brew shellenv``
   (not those modifying ``$PATH``, ``$MANPATH`` and ``$INFOPATH``)
 * possible necessary variables when using custom remote mirrors
-* as well as custom configured environment vars.
+* as well as custom environment vars passed in ``config``.
 
-They are parsed in ``tool_brew/post-map.jinja``.
-
-Modifying the paths is left to the user.
+Permanent $PATH modification can be achieved via the ``globalenv`` setting.
+Modifying $MANPATH, $INFOPATH and $fpath (for zsh) is left to the user.
 
 
 ``tool_brew.taps``

@@ -7,5 +7,5 @@
 Homebrew bin dir in global path is absent:
   file.replace:
     - name: /etc/paths
-    - pattern: {{ brew.lookup.prefix | path_join("bin") | regex_escape }}\n
+    - pattern: '{{ brew.lookup.prefix | path_join("bin") | regex_escape }}\n'
     - repl: ''

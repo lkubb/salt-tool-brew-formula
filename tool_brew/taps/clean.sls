@@ -20,12 +20,14 @@ Homebrew tap '{{ tap.name }}' is unavailable:
     - onlyif:
       - sudo -u '{{ brew.lookup.user }}' {{ brew_bin }} tap | grep '{{ tap.name }}'
     - require:
-        - Homebrew env vars are set during this salt run
+      - sls: {{ tplroot }}.env_vars
 
 {%-   else %}
 
 Homebrew official tap '{{ tap.name }}' is reset to default:
   cmd.run:
     - name: {{ brew_bin }} untap '{{ tap.name }}' && {{ brew_bin }} tap '{{ tap.name }}'
+    - require:
+      - sls: {{ tplroot }}.env_vars
 {%-   endif %}
 {%- endfor %}

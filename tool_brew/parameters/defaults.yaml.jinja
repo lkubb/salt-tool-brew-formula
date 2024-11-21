@@ -6,6 +6,6 @@ values:
   lookup:
     m1: {{ "Apple" in grains.cpu_model }}
     rootgroup: {{ salt["cmd.run"]("stat -f '%Sg' /dev/console") }}
-    user: {{ salt["cmd.run_stdout"]('id -n -u $(stat -f "%u" /dev/console)',
+    user: {{ salt["cmd.run_stdout"]("echo 'show State:/Users/ConsoleUser' | scutil | awk '/Name :/ { print $3 }'",
       python_shell=true) }}
 ...

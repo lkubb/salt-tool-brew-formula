@@ -1,63 +1,49 @@
 # vim: ft=sls
 
 {#-
-    Sets environment variables for the running Salt minion process
-    and persists them to user's ``persistenv`` files, if requested.
+    Sets global homebrew environment variables.
 
-    The latter will contain
+    These contain
 
     * most of the default settings issued by ``brew shellenv``
       (not those modifying ``$PATH``, ``$MANPATH`` and ``$INFOPATH``)
     * possible necessary variables when using custom remote mirrors
-    * as well as custom configured environment vars.
+    * as well as custom environment vars passed in ``config``.
 
-    They are parsed in ``tool_brew/post-map.jinja``.
-
-    Modifying the paths is left to the user.
+    Permanent $PATH modification can be achieved via the ``globalenv`` setting.
+    Modifying $MANPATH, $INFOPATH and $fpath (for zsh) is left to the user.
 #}
-
 
 {%- set tplroot = tpldir.split("/")[0] %}
 {%- from tplroot ~ "/map.jinja" import mapdata as brew with context %}
+{%- from tplroot ~ "/libtofsstack.jinja" import files_switch %}
 
 
-Homebrew env vars are set during this salt run:
-  environ.setenv:
-    - value:
-{%- for conf, val in brew._vars %}
-        {{ conf | upper }}: '{{ val }}'
-{%- endfor %}
+Homebrew global configuration is set:
+  file.managed:
+    - name: {{ brew.lookup.global_env }}
+    - source: {{ files_switch(
+                    ["brew.env", "brew.env.j2"],
+                    lookup="Homebrew global configuration is set",
+                    config=brew,
+                 )
+              }}
+    - template: jinja
+    - user: root
+    - group: {{ brew.lookup.rootgroup }}
+    - mode: '0644'
+    - makedirs: true
+    - context:
+        brew: {{ brew | json }}
+        config: {{ brew._vars | json }}
 
 {%- set path = salt["environ.get"]("PATH") %}
 {%- if brew.lookup.prefix | path_join("bin") not in path
     and not brew.get("globalpath") %}
-{%-   set path = brew.lookup.prefix ~ "/bin:" ~ path %}
+{%-   set path = (brew.lookup.prefix | path_join("bin:")) ~ path %}
 
 Homebrew is listed in $PATH during this salt run:
   environ.setenv:
     - name: PATH
     - value: '{{ path }}'
 {%- endif %}
-
-{%- for user in brew.users | selectattr("persistenv", "defined") | selectattr("persistenv") %}
-
-persistenv file for brew for user '{{ user.name }}' exists:
-  file.managed:
-    - name: {{ user.home | path_join(user.persistenv) }}
-    - user: {{ user.name }}
-    - group: {{ user.group }}
-    - replace: false
-    - mode: '0600'
-    - dir_mode: '0700'
-    - makedirs: true
-
-{%-   for conf, val in brew._vars %}
-
-brew env var '{{ conf | upper }}' is persisted for '{{ user.name }}':
-  file.append:
-    - name: {{ user.home | path_join(user.persistenv) }}
-    - text: export {{ conf | upper }}="{{ val }}"
-    - require:
-      - persistenv file for brew for user '{{ user.name }}' exists
-{%-   endfor %}
-{%- endfor %}

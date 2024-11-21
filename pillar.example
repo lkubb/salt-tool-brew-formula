@@ -30,7 +30,7 @@ tool_global:
       rchook: '.config/zsh/zshrc'
 
 tool_brew:
-    # Specify configuration env vars to be used during salt run.
+    # Specify global configuration env vars.
   config:
     - HOMEBREW_NO_ANALYTICS
     - HOMEBREW_NO_INSECURE_REDIRECT
@@ -39,6 +39,8 @@ tool_brew:
         - --no-quarantine
     # Ensure brew bin dir is globally in/absent from `$PATH`.
   globalpath: true
+    # When initially installing brew, use this version. Defaults to latest.
+  init_version: null
     # Helper to automatically install packages.
   packages:
     - git
@@ -64,9 +66,6 @@ tool_brew:
           # If you specify the name of an existing non-official tap and
           #   taps_forced is set to true, the remote will be matched.
       - homebrew/cask: https://mygit.example.com/my/homebrew-cask
-      - homebrew/cask-versions: https://mygit.example.com/my/homebrew-cask-versions
-      - homebrew/cask-drivers: https://mygit.example.com/my/homebrew-cask-drivers
-      - homebrew/cask-fonts: https://mygit.example.com/my/homebrew-cask-fonts
           # brew tap short syntax works as well
           # (mapped to github.com/<first>/homebrew-<second>)
       - blacktop/tap
@@ -87,11 +86,14 @@ tool_brew:
 ######################################################################
   lookup:
       # It's possible to provide a local mirror for brew repositories.
-      # Mind that you will need to set the matching env vars afterwards:
-      #   HOMEBREW_{BREW,CORE}_GIT_REMOTE @TODO persistenv
       # Local mirrors for casks can be set in taps.
     brew_mirror: https://github.com/Homebrew/brew.git
     core_mirror: https://github.com/Homebrew/homebrew-core.git
+      # Where the Homebrew package is installed from initially.
+    pkg_src:
+      latest: https://github.com/Homebrew/brew/releases/latest/
+      source: https://github.com/Homebrew/brew/releases/download/{version}/Homebrew-{version}.pkg  # yamllint disable-line rule:line-length
+      source_hash: null
     user: username  # Needs administrator. Defaults to console user.
 
 ######################################################################

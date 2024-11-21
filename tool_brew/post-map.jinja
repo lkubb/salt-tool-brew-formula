@@ -1,17 +1,5 @@
 {#- vim: ft=jinja #}
 
-{#- very ugly workaround for Salt only running under Rosetta currently #}
-{%- if mapdata.lookup.m1
-    and "x86_64" == grains.cpuarch
-    and "/usr/local" == mapdata.lookup.prefix
-%}
-    {%- do mapdata.lookup.update({
-        "gnupath": "/opt/gnubin" if mapdata.lookup.gnupath == "/usr/local/gnubin" else mapdata.lookup.gnupath,
-        "prefix": "/opt/homebrew",
-        "repodir": ""
-    }) %}
-{%- endif %}
-
 {%- set parsed_taps = [] %}
 
 {%- for tap in mapdata | traverse("taps:wanted", []) %}
@@ -32,27 +20,28 @@
   }) %}
 {%- endfor %}
 
-{%- set env_vars = [
-      ("HOMEBREW_PREFIX", mapdata.lookup.prefix),
-      ("HOMEBREW_CELLAR", mapdata.lookup.prefix | path_join(mapdata.lookup.repodir, "Cellar")),
-      ("HOMEBREW_REPOSITORY", mapdata.lookup.prefix | path_join(mapdata.lookup.repodir)),
-] %}
+{%- set env_vars = {
+    "HOMEBREW_PREFIX": mapdata.lookup.prefix,
+    "HOMEBREW_CELLAR": mapdata.lookup.prefix | path_join(mapdata.lookup.repodir, "Cellar"),
+    "HOMEBREW_REPOSITORY": mapdata.lookup.prefix | path_join(mapdata.lookup.repodir),
+  }
+%}
 
 {%- if mapdata.lookup.brew_mirror != "https://github.com/Homebrew/brew.git" %}
-  {%- do env_vars.append(("HOMEBREW_BREW_GIT_REMOTE", mapdata.lookup.brew_mirror)) %}
+  {%- do env_vars.update({"HOMEBREW_BREW_GIT_REMOTE": mapdata.lookup.brew_mirror}) %}
 {%- endif %}
 
 {%- if mapdata.lookup.core_mirror != "https://github.com/Homebrew/homebrew-core.git" %}
-  {%- do env_vars.append(("HOMEBREW_CORE_GIT_REMOTE", mapdata.lookup.core_mirror)) %}
+  {%- do env_vars.update({"HOMEBREW_CORE_GIT_REMOTE": mapdata.lookup.core_mirror, "HOMEBREW_NO_INSTALL_FROM_API": "1"}) %}
 {%- endif %}
 
 {%- for var in mapdata.get("config", []) %}
   {%- if var is string %}
     {%- set parsed = (var, "1") %}
   {%- else %}
-    {%- set parsed = (var | first, " ".join(var.values() | first)) %}
+    {%- set parsed = var.items() | first %}
   {%- endif %}
-  {%- do env_vars.append(parsed) %}
+  {%- do env_vars.update([parsed]) %}
 {%- endfor %}
 
 {%- do mapdata.update({"_taps": parsed_taps, "_vars": env_vars}) %}
