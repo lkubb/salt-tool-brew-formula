@@ -46,6 +46,7 @@ Homebrew pkg user file is present:
                     config=brew,
                  )
               }}
+    - template: jinja
     - context:
         brew: {{ brew | json }}
     - require:
